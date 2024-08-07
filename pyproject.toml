@@ -1,0 +1,38 @@
+[project]
+name = "hpc-eval"
+version = "0.0.1"
+authors = [
+  { name="Martin Kruliš", email="martin.krulis@gmail.com" },
+]
+description = "Evaluation tool for HPC and parallel-programming coding assignments. The tool is intended to be executed from CLI and run in batches. The evaluated solutions are expected to be executed over SLURM on a cluster."
+keywords = [ "hpc", "parallel", "education", "coding", "assignments", "evaluation" ]
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Operating System :: Unix",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12"
+]
+dependencies = [
+    "ruamel.yaml",
+]
+
+[project.urls]
+Homepage = "https://github.com/krulis-martin/hpc-eval"
+Repository = "https://github.com/krulis-martin/hpc-eval.git"
+Issues = "https://github.com/krulis-martin/hpc-eval/issues"
+
+[build-system]
+requires = ["setuptools >= 69.0"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+hpc-eval = "main:main"
+
+[tool.setuptools.packages.find]
+where = [ "src/hpc-eval" ]
