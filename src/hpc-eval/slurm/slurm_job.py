@@ -1,3 +1,4 @@
+from .slurm_args import SlurmArgs
 import subprocess
 import time
 
@@ -8,78 +9,21 @@ class SlurmJob:
     It enables polling the state via sacct utility.
     '''
 
-    # the sbatch subset of known args will be extended as needed
-    known_args = {
-        'account': str,
-        'cpus-per-task': int,
-        'exclusive': None,
-        'gpus': int,
-        'gres': str,
-        'mem': str,
-        'nodelist': str,
-        'ntasks': int,
-        'output': str,
-        'partition': str,
-        'time': str,
-    }
-    short_args = {
-        'A': 'account',
-        'c': 'cpus-per-task',
-        'G': 'gpus',
-        'n': 'ntasks',
-        'w': 'nodelist',
-        'o': 'output',
-        'p': 'partition',
-        't': 'time',
-    }
-
-    def __init__(self):
+    def __init__(self, name: str, args: SlurmArgs | None = None):
+        self.name = name
         self.id = None
         self.running = False
         self.status = None
         self.last_status_load = None
-        self.args = {}
+        self.args = SlurmArgs(args)
         self.commands = []
-        pass
-
-    def _add_arg(self, name, value):
-        '''
-        Internal method for adding arguments. Supports both short and long
-        names. Value is verified based on the known args specification.
-        Note that short names are translated to long names immediately.
-        '''
-        if name in SlurmJob.short_args:
-            name = SlurmJob.short_args[name]
-        if name not in SlurmJob.known_args:
-            raise Exception(
-                "SLURM argument '{}' is not recognized".format(name))
-
-        verifier = SlurmJob.known_args[name]
-        if isinstance(verifier, type):
-            if not isinstance(value, verifier):
-                raise Exception("Invalid type for argument '{}' is not valid \
-                                ({} expected, {} given)".format(name, verifier,
-                                                                type(value)))
-        elif callable(verifier):
-            value = verifier(value, name)  # raises exception on error
-        elif value is not None:
-            raise Exception(
-                "SLURM argument '{}' should have no value".format(name))
-
-        self.args[name] = value
 
     def _generate_sbatch(self):
         '''
         Internal method that generates sbatch execution command for shell.
         '''
         cmd = ['sbatch << EOF', '#!/bin/sh']
-        for name, value in self.args.items():
-            directive = '#SBATCH --' + name
-            if value is not None:
-                directive += '="{}"'.format(str(value).replace("\\",
-                                            "\\\\").replace('"', '\\"'))
-            cmd.append(directive)
-
+        cmd.extend(self.args.generate_sbatch_directives())
         cmd.extend(self.commands)
         cmd.append('EOF')
         return '\n'.join(cmd)
@@ -121,13 +65,21 @@ class SlurmJob:
     # Public interface
     #
 
+    def get_name(self):
+        return self.name
+
+    def get_id(self):
+        return self.id
+
     def add_args(self, name, value=None):
         # TODO better interface
-        self._add_arg(name, value)
+        self.args.add_arg(name, value)
+        return self
 
-    def add_command(self, cmd):
+    def add_command(self, cmd: str) -> None:
         # TODO
         self.commands.append(cmd)
+        return self
 
     def run(self):
         '''
