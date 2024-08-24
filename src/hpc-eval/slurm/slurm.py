@@ -1,8 +1,13 @@
-from .slurm_job import SlurmJob
-from .slurm_args import SlurmArgs
+from slurm.job import SlurmJob
+from slurm.args import SlurmArgs
 
 
 class Slurm:
+    '''
+    Main interface for the Slurm job dispatching. Creates and manages
+    SlurmJob objects through which the execution is controlled.
+    '''
+
     def __init__(self, default_args):
         self.jobs = {}
         self.default_args = SlurmArgs(default_args)
