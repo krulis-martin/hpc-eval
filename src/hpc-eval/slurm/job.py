@@ -24,24 +24,33 @@ class SlurmJob:
         self.exit_code = None  # exit code of the terminated sbatch script
         self.signal = None  # signal that terminted the sbatch script
 
-    def _update_state(self, state_timeout: int = 5) -> bool:
+    def _process_update(self, result: dict | None, ts: int | None = None
+                        ) -> None:
+        '''
+        Integrate status result retrieved from API in internal structures.
+        The ts is the timestamp, when the status was retrieved.
+        '''
+        if ts is None:
+            ts = time.time()
+
+        if result is not None:
+            # copy the resutl to internal properties
+            for key in ['state', 'running', 'exit_code', 'signal']:
+                self.key = result.get(key)
+        elif self.state is None or self.state == '_STARTING_':
+            self.state = '_STARTING_'
+        self.last_update = ts
+
+    def _update_state(self, state_timeout: int | None = 5) -> bool:
         '''
         Use sacct tool to load current state of the job.
         '''
-        if self.id is None:
+        if self.id is None or state_timeout is None:
             return False
 
         ts = time.time()
         if (self.last_update is None or ts-self.last_update > state_timeout):
-            result = api.get_job_state(self.id)
-            if result is not None:
-                # copy the resutl to internal properties
-                for key in ['state', 'running', 'exit_code', 'signal']:
-                    self.key = result.get(key)
-            elif self.state is None or self.state == '_STARTING_':
-                self.state = '_STARTING_'
-
-            self.last_update = ts
+            self._process_update(api.get_job_state(self.id), ts)
             return True  # state updated
 
         return False  # no update, timeout has not passed yet
@@ -108,7 +117,7 @@ class SlurmJob:
         api.scancel(self.id)
         return True  # scancel was called
 
-    def is_running(self, state_timeout: int = 5) -> bool:
+    def is_running(self, state_timeout: int | None = 5) -> bool:
         '''
         Is the job currently running?
         The state_timeout [s] defines how old state from cache is acceptable.
@@ -120,7 +129,7 @@ class SlurmJob:
         self._update_state(state_timeout)
         return self.running
 
-    def get_state(self, state_timeout: int = 5) -> str | None:
+    def get_state(self, state_timeout: int | None = 5) -> str | None:
         '''
         Return raw string representing SLURM state.
         The state_timeout [s] defines how old state from cache is acceptable.

@@ -77,7 +77,8 @@ class SlurmArgs:
         if isinstance(verifier, type):
             if not isinstance(value, verifier):
                 raise Exception(f"Invalid type for argument '{name}' \
-                                ({verifier} expected, {type(value)} given)")
+                                ({verifier.__name__} expected, \
+                                {type(value).__name__} given)")
         elif callable(verifier):
             value = verifier(value, name)  # raises exception on error
         elif value is not None:

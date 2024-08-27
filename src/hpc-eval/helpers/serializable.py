@@ -20,7 +20,7 @@ def _serialize(value, name: str):
     # unknown type, nothing we can do...
     else:
         raise Exception(
-            f"Property {name} has unserializable type {type(value)}.")
+            f"Property {name} has unserializable type {type(value).__name__}.")
 
 
 class Serializable:
@@ -57,8 +57,8 @@ class Serializable:
                 if type(self[key]) is not type(value):
                     raise Exception(
                         f"Deserialization type mismatch. Property {key} is \
-                            expected to be {type(self[key])} but \
-                            {type(value)} type given.")
+                            expected to be {type(self[key]).__name__} but \
+                            {type(value).__name__} type given.")
 
                 self[key] = value
 

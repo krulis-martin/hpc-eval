@@ -1,5 +1,8 @@
 from slurm.job import SlurmJob
 from slurm.args import SlurmArgs
+import slurm.api as api
+
+import time
 
 
 class Slurm:
@@ -8,7 +11,7 @@ class Slurm:
     SlurmJob objects through which the execution is controlled.
     '''
 
-    def __init__(self, default_args):
+    def __init__(self, default_args: SlurmArgs | dict | None = None):
         self.jobs = {}
         self.default_args = SlurmArgs(default_args)
 
@@ -22,8 +25,34 @@ class Slurm:
         self.jobs[name] = job
         return job
 
-    def get_job(self, name: str):
+    def get_job(self, name: str) -> SlurmJob | None:
         '''
         Return an object representing a job under given name.
         '''
-        return self.jobs.get(name)
+        return self.jobs.get(name, None)
+
+    def update_jobs(self) -> list:
+        '''
+        Perform a collective update of all running jobs (more efficient).
+        Return list of SlurmJobs that just turned into a non-running state.
+        '''
+        running = {job.get_id(): job for job in self.jobs.values()
+                   if job.running}
+        if not running:
+            return []
+        ids = [job.get_id() for job in running.values()]
+
+        states = api.get_job_states(ids)
+        ts = time.time()
+        for id, state in states.items():
+            self.jobs[id]._process_update(state, ts)
+
+        # return jobs that just terminated
+        return [job for job in running if not job.running]
+
+    def release(self, name: str) -> SlurmJob | None:
+        '''
+        Remove job by its name from internal job list.
+        Returns the job removed, or None if no such job exists.
+        '''
+        return self.jobs.pop(name, None)
