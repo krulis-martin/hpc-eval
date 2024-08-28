@@ -51,13 +51,11 @@ def get_job_states(job_ids: list) -> dict:
         if id not in res:
             continue
 
-        running = state in ['PENDING', 'RUNNING',
-                            'REQUEUED', 'RESIZING', 'SUSPENDED']
+        running = state in ['PENDING', 'RUNNING', 'REQUEUED', 'RESIZING', 'SUSPENDED']
 
         res[id] = {"state": state, "running": running}
         if not running:
-            res[id]["exit_code"], res[id]["signal"] \
-                = exit_code_and_signal.split(':')
+            res[id]["exit_code"], res[id]["signal"] = exit_code_and_signal.split(':')
 
     return res
 

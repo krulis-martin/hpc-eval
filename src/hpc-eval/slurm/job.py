@@ -49,7 +49,7 @@ class SlurmJob:
             return False
 
         ts = time.time()
-        if (self.last_update is None or ts-self.last_update > state_timeout):
+        if (self.last_update is None or ts - self.last_update > state_timeout):
             self._process_update(api.get_job_state(self.id), ts)
             return True  # state updated
 

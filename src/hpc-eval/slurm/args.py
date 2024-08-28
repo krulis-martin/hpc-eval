@@ -76,8 +76,7 @@ class SlurmArgs:
         verifier = SlurmArgs.known_args[name]
         if isinstance(verifier, type):
             if not isinstance(value, verifier):
-                raise Exception(f"Invalid type for argument '{name}' \
-                                ({verifier.__name__} expected, \
+                raise Exception(f"Invalid type for argument '{name}' ({verifier.__name__} expected, \
                                 {type(value).__name__} given)")
         elif callable(verifier):
             value = verifier(value, name)  # raises exception on error
@@ -108,8 +107,7 @@ class SlurmArgs:
         for name, value in self.args.items():
             directive = '#SBATCH --' + name
             if value is not None:
-                sanitized = str(value).replace(
-                    "\\", "\\\\").replace('"', '\\"')
+                sanitized = str(value).replace("\\", "\\\\").replace('"', '\\"')
                 directive += f'="{sanitized}"'
             res.append(directive)
         return res
