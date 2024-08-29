@@ -1,4 +1,6 @@
+/!not-git
 /dist
 /.vscode
 __pycache__
 
+/*.bat
