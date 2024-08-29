@@ -19,8 +19,10 @@ classifiers = [
     "Programming Language :: Python :: 3.12"
 ]
 dependencies = [
-    "ruamel.yaml",
+    "ruamel.yaml >= 0.18",
     "jsonschema >= 4.23",
+    "loguru >= 0.7",
+    "argparse >= 1.4",
 ]
 
 [project.urls]
