@@ -8,7 +8,7 @@ description = "Evaluation tool for HPC and parallel-programming coding assignmen
 keywords = [ "hpc", "parallel", "education", "coding", "assignments", "evaluation" ]
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 classifiers = [
     "Development Status :: 1 - Planning",
     "Environment :: Console",
@@ -37,4 +37,4 @@ build-backend = "setuptools.build_meta"
 hpc-eval = "main:main"
 
 [tool.setuptools.packages.find]
-where = [ "src/hpc-eval" ]
+where = [ "hpc-eval" ]

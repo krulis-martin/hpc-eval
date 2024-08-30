@@ -181,8 +181,8 @@ class String(Base):
             return False
 
         if self.enum_values and value not in self.enum_values:
-            errors.append(ValidationError(self, source, f"Value {value} is not in enum \
-                                          [{', '.join(self.enum_values)}]"))
+            errors.append(ValidationError(self, source,
+                                          f"Value {value} is not in enum [{', '.join(self.enum_values)}]"))
             return False
 
         return True
