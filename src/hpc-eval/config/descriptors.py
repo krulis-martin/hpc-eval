@@ -1,4 +1,16 @@
 from typing import Self, override
+import os
+
+
+def _normalize_path(path, base_file, _):
+    '''
+    If the path is relative, convert it to absolute using `base_file` path as reference.
+    This function has conveniently the same order of arguments as expected for descriptor postprocessors.
+    '''
+    if os.path.isabs(path):
+        return path
+    base = os.path.dirname(base_file)
+    return os.path.normpath(f'{base}/{path}')
 
 
 class Base:
@@ -57,7 +69,7 @@ class Base:
 
             if type(self.name) is int:
                 self.full_name += f'[{self.name}]'
-            else:
+            elif type(self.name) is str:
                 if self.full_name:
                     self.full_name += '.'
                 self.full_name += self.name
@@ -114,7 +126,8 @@ class ValidationError:
         self.message = message
 
     def __str__(self):
-        return f"'{self.full_name}' (from {self.source}): {self.message}"
+        name = f"'{self.full_name}'" if self.full_name else '<root>'
+        return f"{name} (in '{self.source}'): {self.message}"
 
 
 class Integer(Base):
@@ -151,6 +164,13 @@ class String(Base):
             self.enum_values = values
         else:
             self.enum_values.extend(values)
+        return self
+
+    def path(self) -> Self:
+        '''
+        Treat the string as a fs path. Convert relative paths to absolute paths using source file as base.
+        '''
+        self.postprocessor = _normalize_path
         return self
 
     @override
