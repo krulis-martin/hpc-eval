@@ -23,6 +23,7 @@ jobs:
     
     # script
     - run: python -m unittest discover -s ./tests
+      working-directory: ./hpc-eval
 
   linter:
     runs-on: ubuntu-24.04

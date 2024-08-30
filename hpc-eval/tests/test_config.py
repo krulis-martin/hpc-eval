@@ -81,14 +81,13 @@ class TestConfig(unittest.TestCase):
             "foo": {
                 "bar": {
                     "spam": "a",
-                    "spam": "b",
                 },
             }
         }
         errors = []
         self.assertFalse(descs.validate(input, 'file.yaml', errors))
         self.assertEqual(len(errors), 1)
-        self.assertEqual(str(errors[0]), "'foo.bar' (in 'file.yaml'): Value '{'spam': 'b'}' is not a list.")
+        self.assertEqual(str(errors[0]), "'foo.bar' (in 'file.yaml'): Value '{'spam': 'a'}' is not a list.")
 
         input = {
             "foo": {
