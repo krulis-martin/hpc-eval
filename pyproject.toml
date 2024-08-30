@@ -20,7 +20,6 @@ classifiers = [
 ]
 dependencies = [
     "ruamel.yaml >= 0.18",
-    "jsonschema >= 4.23",
     "loguru >= 0.7",
     "argparse >= 1.4",
 ]
