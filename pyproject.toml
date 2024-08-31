@@ -24,6 +24,11 @@ dependencies = [
     "argparse >= 1.4",
 ]
 
+[project.optional-dependencies]
+test = [
+    "pyfakefs >= 5.6",
+]
+
 [project.urls]
 Homepage = "https://github.com/krulis-martin/hpc-eval"
 Repository = "https://github.com/krulis-martin/hpc-eval.git"

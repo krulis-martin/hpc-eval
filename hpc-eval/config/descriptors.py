@@ -1,5 +1,6 @@
 from typing import Self, override
 import os
+import glob
 
 
 def _normalize_path(path, base_file, _):
@@ -11,6 +12,19 @@ def _normalize_path(path, base_file, _):
         return path
     base = os.path.dirname(base_file)
     return os.path.normpath(f'{base}/{path}')
+
+
+def _glob_postprocessor(pattern, base_file, merge_with):
+    '''
+    Helper postprocessor that handles glob path patterns (used in String.glob())
+    '''
+    merge_with = merge_with[:] if merge_with else []
+    if not os.path.isabs(pattern) and base_file:
+        base = os.path.dirname(base_file)
+        pattern = f'{base}/{pattern}'
+
+    merge_with.extend([os.path.normpath(p) for p in glob.glob(pattern, recursive=True)])
+    return merge_with
 
 
 class Base:
@@ -170,7 +184,17 @@ class String(Base):
         '''
         Treat the string as a fs path. Convert relative paths to absolute paths using source file as base.
         '''
+        self.enum_values = None
         self.postprocessor = _normalize_path
+        return self
+
+    def glob(self) -> Self:
+        '''
+        Treat the string as a glob pattern. When loading, the glob is resolved returning a list of paths
+        (instead of a string).
+        '''
+        self.enum_values = None
+        self.postprocessor = _glob_postprocessor
         return self
 
     @override

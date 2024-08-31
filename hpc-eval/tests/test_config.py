@@ -1,4 +1,5 @@
 import unittest
+import pyfakefs.fake_filesystem_unittest as unittest_fs
 import os
 import config.descriptors as cd
 
@@ -132,6 +133,44 @@ class TestConfig(unittest.TestCase):
         descs = cd.String().path()
         res = descs.load('./../jobs', '/opt/hpc-eval/config.yaml')
         self.assertEqual(res, os.path.normpath('/opt/jobs'))
+
+
+class TestConfigWithFs(unittest_fs.TestCase):
+    def setUp(self):
+        self.setUpPyfakefs()
+        self.fs.create_dir('/test')
+
+    def fix_dirs(self, dirs):
+        return [os.path.normpath(d) for d in dirs]
+
+    def test_glob_ok(self):
+        self.fs.create_dir('/test/sub')
+        self.fs.create_file('/test/a.yaml')
+        self.fs.create_file('/test/b.yaml')
+        self.fs.create_file('/test/c.txt')
+        self.fs.create_file('/test/sub/a.yaml')
+        desc = cd.String().glob()
+        patterns = {
+            '*.yaml': self.fix_dirs(['/test/a.yaml', '/test/b.yaml']),
+            './*.yaml': self.fix_dirs(['/test/a.yaml', '/test/b.yaml']),
+            '/test/*.yaml': self.fix_dirs(['/test/a.yaml', '/test/b.yaml']),
+            '**/*.yaml': self.fix_dirs(['/test/a.yaml', '/test/b.yaml', '/test/sub/a.yaml']),
+            '/**/*.yaml': self.fix_dirs(['/test/a.yaml', '/test/b.yaml', '/test/sub/a.yaml']),
+            '**/../*.yaml': self.fix_dirs(['/test/a.yaml', '/test/b.yaml']),
+            './*/*.yaml': self.fix_dirs(['/test/sub/a.yaml']),
+            '*.txt': self.fix_dirs(['/test/c.txt']),
+            '/**/*.md': self.fix_dirs([]),
+        }
+
+        for p in patterns:
+            errors = []
+            self.assertTrue(desc.validate(p, '/test/a.yaml', errors))
+            self.assertEqual(errors, [])
+
+        for p, correct in patterns.items():
+            res = desc.load(p, '/test/a.yaml')
+            self.assertIs(type(res), list)
+            self.assertListEqual(res, correct)
 
 
 if __name__ == '__main__':
