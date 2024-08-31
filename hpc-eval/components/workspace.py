@@ -17,6 +17,7 @@ class Workspace:
     @staticmethod
     def get_config_schema():
         '''
+        Return configuration descriptor for this component.
         '''
         return __class__._config
 

@@ -1,6 +1,7 @@
 import argparse
 import config.descriptors as cd
 from components.workspace import Workspace
+from components.log_init import LogInit
 from config.loader import ConfigLoader
 
 
@@ -14,7 +15,8 @@ class BaseCommand:
         # known components automatically instantiated with config load
         # (keys are used both as config keys and as propery names within this class)
         self.components = {
-            'workspace': Workspace
+            'workspace': Workspace,
+            'logger': LogInit,  # initializes loguru logger on construction
         }
         self.args = None  # not loaded yet
 
