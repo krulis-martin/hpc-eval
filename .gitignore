@@ -4,3 +4,4 @@
 __pycache__
 
 /*.bat
+/hpc-eval/hpc_eval.egg-info

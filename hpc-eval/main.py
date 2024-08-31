@@ -1,12 +1,5 @@
 import sys
-import argparse
 from commands import get_command
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--assignments', help='')
-    return parser.parse_args(sys.argv)
 
 
 def main():
@@ -17,19 +10,13 @@ def main():
     sys.stdout.reconfigure(encoding='utf-8')
     sys.stderr.reconfigure(encoding='utf-8')
 
-    args = sys.argv[:]
+    # find the right command and fill it with args
+    args = sys.argv[1:]
     command = get_command(args)
     command.parse_args(args)
 
-    # todo load config
+    # load configuration and instantiate components (this should also initialize logger)
+    command.load_config()
 
+    # Finally, let's do what is expected of us!
     command.execute()
-    # args = parse_args()
-
-    # with open('schema.json') as fp:
-    #    schema = json.load(fp)
-    # with open('instance.json') as fp:
-    #    data = json.load(fp)
-
-    # res = jsonschema.validate(data, schema)
-    # print(res)

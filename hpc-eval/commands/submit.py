@@ -1,15 +1,26 @@
 import argparse
+from typing import override
+from commands.base import BaseCommand
 
 
-class Submit:
+class Submit(BaseCommand):
     '''
     Submit command that loads new solution into submit queue.
     '''
+    @staticmethod
+    def get_name() -> str:
+        return 'submit'
 
-    def parse_args(self, args: list):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--assignments', help='')
-        self.args = parser.parse_args(args)
+    @override
+    def _prepare_args_parser(self) -> argparse.ArgumentParser:
+        parser = super()._prepare_args_parser()
+        parser.add_argument('--user', required=True,
+                            help='Identification of the user making the submit.')
+        parser.add_argument('--assignment', required=True,
+                            help='Identification of the assignment being submitted.')
+        return parser
 
-    def execute():
-        pass
+    @override
+    def execute(self) -> None:
+        print("Executing submit...")
+        print(self.args)
