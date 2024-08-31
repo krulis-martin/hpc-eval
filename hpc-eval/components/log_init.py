@@ -3,6 +3,13 @@ from loguru import logger
 import config.descriptors as cd
 
 
+def sink_postprocessor(path, base_file, _):
+    if type(path) is str and path.startswith('@'):
+        return path  # avoid normalizing @stdout and @stderr
+
+    return cd._normalize_path(path, base_file, _)
+
+
 class LogInit:
     '''
     Wrapper that initializes loguru logger globally. The config parameters are directly injected into
@@ -11,7 +18,7 @@ class LogInit:
     '''
     _config = cd.List(
         cd.Dictionary({
-            'sink': cd.String('@stdout', '@stdout, @stderr, or a path to a file'),
+            'sink': cd.String('@stdout', '@stdout, @stderr, or a path to a file').set_postprocessor(sink_postprocessor),
             'level': cd.String('INFO', 'Logging level filter (TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL)')
                 .enum(['TRACE', 'DEBUG', 'INFO', 'SUCCESS', 'WARNING', 'ERROR', 'CRITICAL']),
             'colorize': cd.Bool(True, 'Whether to allow color output.'),

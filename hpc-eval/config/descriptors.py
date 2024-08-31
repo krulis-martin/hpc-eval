@@ -102,6 +102,20 @@ class Base:
         '''
         return self.default
 
+    def set_preprocessor(self, preprocessor: callable) -> Self:
+        '''
+        Set preprocessor function which is called just before loading/validating an input.
+        '''
+        self.preprocessor = preprocessor
+        return self
+
+    def set_postprocessor(self, postprocessor: callable) -> Self:
+        '''
+        Set postprocessor function which is called as the last step of loading.
+        '''
+        self.postprocessor = postprocessor
+        return self
+
     def validate(self, value, source, errors: list) -> bool:
         '''
         Perform validation. On failure, add ValidationError object(s) in the errors list.
