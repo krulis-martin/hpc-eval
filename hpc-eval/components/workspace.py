@@ -12,6 +12,7 @@ class Workspace:
         'solutions_dir': cd.String('solutions', 'Solutions archive subdir (_ prefix is added automatically)'),
         'jobs_dir': cd.String('jobs', 'Name of the SLURM jobs subdir (_ prefix is added automatically)'),
         'results_dir': cd.String('results', 'Results archive subdir (_ prefix is added automatically)'),
+        'tmp_dir': cd.String('tmp', 'Directory for temporary data staging (_ prefix is added automatically)'),
     })
 
     @staticmethod
