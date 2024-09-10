@@ -26,6 +26,9 @@ class FileLock:
         '''
         return self.fp
 
+    def is_open(self) -> bool:
+        return self.fp is not None
+
     def is_exclusive(self) -> bool:
         return self.exclusive
 
