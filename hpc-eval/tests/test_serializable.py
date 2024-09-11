@@ -48,11 +48,13 @@ class TestConfig(unittest.TestCase):
 
     def test_serialization_scalars(self):
         data = Data3(self.tmpfile, 1, 'foo', True)
+        self.assertTrue(data.serialization_file_exists())
         data.save_json()
 
         data2 = Data3(self.tmpfile)
         data2.load_json()
         self.assertEqual(data, data2)
+        self.assertTrue(data.serialization_file_exists())
 
     def test_serialization_nested_structs(self):
         data = Data2(self.tmpfile, [[1, 2], ['a', 'b'], [True, [False]]], {
@@ -78,5 +80,16 @@ class TestConfig(unittest.TestCase):
         data.save_json()
 
         data2 = Data2(self.tmpfile)
+        data2.load_json()
+        self.assertEqual(data, data2)
+
+    def test_serialization_nonexist(self):
+        file = self.tmpdir.name + '/nonexist.json'
+        data = Data1(file, 42)
+        self.assertFalse(data.serialization_file_exists())
+        data.save_json()
+        self.assertTrue(data.serialization_file_exists())
+
+        data2 = Data1(file)
         data2.load_json()
         self.assertEqual(data, data2)

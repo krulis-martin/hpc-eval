@@ -1,4 +1,5 @@
 import sys
+from loguru import logger
 from commands import get_command
 
 
@@ -19,4 +20,5 @@ def main():
     command.load_config()
 
     # Finally, let's do what is expected of us!
+    logger.debug(f"Executing command '{command.get_name()}' with args '{args}'")
     command.execute()

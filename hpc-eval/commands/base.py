@@ -1,8 +1,9 @@
 import argparse
 import config.descriptors as cd
+from config.loader import ConfigLoader
 from components.workspace import Workspace
 from components.log_init import LogInit
-from config.loader import ConfigLoader
+from components.users import Users
 
 
 class BaseCommand:
@@ -17,6 +18,7 @@ class BaseCommand:
         self.components = {
             'workspace': Workspace,
             'logger': LogInit,  # initializes loguru logger on construction
+            'users': Users,
         }
         self.args = None  # not loaded yet
 
@@ -33,6 +35,7 @@ class BaseCommand:
         '''
         Additional post-validation of the arguments. Errors should be printed out
         and False is retuned if the validation fails.
+        Arguments are loaded before logger initialization, print() must be used for additional notifications.
         '''
         return True  # everything is fine
 
@@ -53,7 +56,8 @@ class BaseCommand:
         Load configuration and instantiate base components (listed in `component` dict).
         '''
         assert self.args is not None, "Arguments need to be loaded first!"
-        schema = cd.Dictionary({key: comp_class.get_config_schema() for key, comp_class in self.components.items()})
+        schema = cd.Dictionary({key: comp_class.get_config_schema() for key, comp_class in self.components.items()
+                                if ConfigLoader.is_configurable(comp_class)})
         loader = ConfigLoader(schema)
 
         # load entire configuration structure, terminates on failure
@@ -61,10 +65,27 @@ class BaseCommand:
 
         # use config to instantiate components
         for key, comp_class in self.components.items():
-            self[key] = comp_class(config=config[key])  # passing config parts to constructor
+            if ConfigLoader.is_configurable(comp_class):
+                self[key] = comp_class(config=config[key])  # passing config parts to constructor
+            else:
+                self[key] = comp_class()  # no config
+
+    def load_state(self) -> None:
+        '''
+        Load states of the components, perform necessary file locking.
+        An error should be raised if the state cannot be loaded of the files cannot be locked.
+        '''
+        pass
 
     def execute(self) -> None:
         '''
         Main method that performs whatever is expected from the command.
+        '''
+        pass
+
+    def save_state(self) -> None:
+        '''
+        Save states of all modified components. The state may be saved already during the execution,
+        this method is called just before termination (even if execution raised an error).
         '''
         pass

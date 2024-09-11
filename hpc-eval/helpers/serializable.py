@@ -191,6 +191,11 @@ class Serializable:
             raise RuntimeError("No serialization file was specified.")
         return self._serialization_file.close()
 
+    def serialization_file_exists(self) -> bool:
+        if self._serialization_file is None:
+            raise RuntimeError("No serialization file was specified.")
+        return self._serialization_file.exists()
+
     def load_json(self, file: str | None = None, keep_open=False, exclusive=False) -> None:
         '''
         Simplifies direct loading from a JSON file.
@@ -204,6 +209,7 @@ class Serializable:
                 raise Exception("Path to a serialization file must be specified.")
             self.open_serialization_file(exclusive=exclusive)
 
+        self._serialization_file.get_fp().seek(0)
         data = json.load(self._serialization_file.get_fp())
         self.deserialize(data)
 
@@ -223,7 +229,8 @@ class Serializable:
             self.open_serialization_file(exclusive=True)
 
         data = self.serialize()
-        self._serialization_file.get_fp().truncate()
+        self._serialization_file.get_fp().seek(0)
+        self._serialization_file.get_fp().truncate(0)  # lets make sure the entire file overwritten
         json.dump(data, self._serialization_file.get_fp())
 
         if not keep_open:

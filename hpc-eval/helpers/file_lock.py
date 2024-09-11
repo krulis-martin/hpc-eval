@@ -1,5 +1,6 @@
 import fcntl
 import timeoutcontext
+import os
 
 
 class FileLock:
@@ -26,6 +27,9 @@ class FileLock:
         '''
         return self.fp
 
+    def exists(self) -> bool:
+        return os.path.exists(self.file_name) and os.path.isfile(self.file_name)
+
     def is_open(self) -> bool:
         return self.fp is not None
 
@@ -45,7 +49,11 @@ class FileLock:
         if timeout is None:
             timeout = __class__.default_timeout
 
-        self.fp = open(self.file_name, "r+" if exclusive else "r")
+        mode = 'r' if self.exists() else 'w'  # w will ensure creation
+        if exclusive:
+            mode += '+'  # r+ is for reading and writing but without truncation
+
+        self.fp = open(self.file_name, mode)
         self.exclusive = exclusive
         lock_type = fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH
 
