@@ -163,6 +163,9 @@ class Integer(Base):
     Descriptor of integral parameter.
     '''
 
+    def __init__(self, default: int | None = 0, description: str | None = None):
+        super().__init__(default=default, description=description)
+
     @override
     def validate(self, value, source, errors: list) -> bool:
         value = self._preprocess(value, source)
@@ -177,8 +180,8 @@ class String(Base):
     Descriptor of a string parameter.
     '''
 
-    def __init__(self, default: str | None = None, description: str | None = None):
-        super().__init__(description=description)
+    def __init__(self, default: str | None = '', description: str | None = None):
+        super().__init__(default=default, description=description)
         self.enum_values = None
 
     def enum(self, values: list | str) -> Self:
@@ -231,6 +234,9 @@ class Bool(Base):
     Descriptor of a bool flag.
     '''
 
+    def __init__(self, default: bool | None = False, description: str | None = None):
+        super().__init__(default=default, description=description)
+
     @override
     def validate(self, value, source, errors: list) -> bool:
         value = self._preprocess(value, source)
@@ -250,11 +256,12 @@ class Dictionary(Base):
         Items is a dictionary where names matches names in the described structure and values are value descriptors.
         The value descriptors are automatically embedded (have their parent and name properties set).
         '''
-        super().__init__(default=default, description=description)
+        super().__init__(default={}, description=description)
         self.items = items
         for name in items:
             assert isinstance(items[name], Base), f"Config dict value of '{name}' is not a descriptor object."
             items[name].embed(name, self)
+            self.default[name] = default.get(name, items[name].default)
 
     @override
     def validate(self, value, source, errors: list) -> bool:
@@ -274,7 +281,7 @@ class Dictionary(Base):
         return ok
 
     @override
-    def load(self, value: dict | None, source, merge_with: dict | None = {}):
+    def load(self, value: dict | None, source, merge_with: dict | None = None):
         if not value:
             return merge_with if merge_with else self.default.copy()
 

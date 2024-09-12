@@ -1,6 +1,17 @@
 import config.descriptors as cd
 import copy
-# from helpers.file_lock import FileLock
+import os
+from ruamel.yaml import YAML
+from helpers.file_lock import FileLock
+
+
+def _load_yaml(file):
+    if os.path.exists(file):
+        yaml = YAML(typ='safe')
+        with open(file, 'r') as fp:
+            return yaml.load(fp)
+    else:
+        return {}
 
 
 class ConfigLoader:
@@ -16,11 +27,18 @@ class ConfigLoader:
         self.schema = copy.copy(schema)
         self.schema.items = copy.copy(self.schema.items)
         self.schema.items['general'] = cd.Dictionary({
-            # TODO - use glob
-            'config_files': cd.List(cd.String().path()),
+            'config_files': cd.String().glob(),
             'lock_timeout': cd.Integer(10, "Default timeout [s] for all file locking operations.")
         }, description='Global configuration')
 
     def load(self, root_file):
-        pass
-        # FileLock.set_default_timeout() # TODO
+        root_cfg = _load_yaml(root_file)
+        config = self.schema.load(root_cfg, root_file)
+
+        # apply general config
+        general = config['general']
+        FileLock.set_default_timeout(general['lock_timeout'])
+        # print(general['config_files'])
+        # TODO - proces general.config_files
+
+        return config

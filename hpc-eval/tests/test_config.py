@@ -25,6 +25,25 @@ class TestConfig(unittest.TestCase):
         loaded = descs.load(input, '')
         self.assertDictEqual(loaded, input)
 
+    def test_simple_defaults(self):
+        descs = cd.Dictionary({
+            "foo": cd.String('abc'),
+            "bar": cd.Integer(42),
+            "spam": cd.Bool(),
+            "eggs": cd.List(cd.String())
+        })
+        input = {}
+        errors = []
+        self.assertTrue(descs.validate(input, '', errors))
+        self.assertEqual(len(errors), 0)
+        loaded = descs.load(input, '')
+        self.assertDictEqual(loaded, {
+            "foo": "abc",
+            "bar": 42,
+            "spam": False,
+            "eggs": [],
+        })
+
     def test_simple_struct_fail(self):
         descs = cd.Dictionary({
             "foo": cd.String(''),
