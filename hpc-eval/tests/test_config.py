@@ -191,6 +191,15 @@ class TestConfigWithFs(unittest_fs.TestCase):
             self.assertIs(type(res), list)
             self.assertListEqual(res, correct)
 
+    def test_path(self):
+        desc = cd.String().path()
+        res = desc.load('.hidden.file', '/test/config.yaml')
+        self.assertEqual(res, '/test/.hidden.file')
+        res = desc.load('.hidden.file', '/test/sub/config.yaml')
+        self.assertEqual(res, '/test/sub/.hidden.file')
+        res = desc.load('./sub/.hidden.file', '/test/config.yaml')
+        self.assertEqual(res, '/test/sub/.hidden.file')
+
 
 if __name__ == '__main__':
     unittest.main()

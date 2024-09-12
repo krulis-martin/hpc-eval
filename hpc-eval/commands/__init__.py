@@ -1,9 +1,11 @@
-from commands.submit import Submit
+from commands.add_user import AddUser
 from commands.default import Default
+from commands.submit import Submit
 
 commands = {
     Default.get_name(): Default(),
     Submit.get_name(): Submit(),
+    AddUser.get_name(): AddUser(),
 }
 
 

@@ -16,8 +16,8 @@ class BaseCommand:
         # known components automatically instantiated with config load
         # (keys are used both as config keys and as propery names within this class)
         self.components = {
-            'workspace': Workspace,
             'logger': LogInit,  # initializes loguru logger on construction
+            'workspace': Workspace,
             'users': Users,
         }
         self.args = None  # not loaded yet
@@ -66,9 +66,9 @@ class BaseCommand:
         # use config to instantiate components
         for key, comp_class in self.components.items():
             if ConfigLoader.is_configurable(comp_class):
-                self[key] = comp_class(config=config[key])  # passing config parts to constructor
+                self.__dict__[key] = comp_class(config=config[key])  # passing config parts to constructor
             else:
-                self[key] = comp_class()  # no config
+                self.__dict__[key] = comp_class()  # no config
 
     def load_state(self) -> None:
         '''

@@ -1,4 +1,5 @@
 from typing import override
+from loguru import logger
 import config.descriptors as cd
 from helpers.serializable import Serializable
 
@@ -44,6 +45,8 @@ class Users(Serializable):
         return __class__._config
 
     def __init__(self, config: dict = {}):
+        logger.trace(f'Users.__init__({config})')
+
         super().__init__(config.get('file'))
         self.users = {}  # the main container
         self._ext_index = {}  # additional index external ID -> user ID

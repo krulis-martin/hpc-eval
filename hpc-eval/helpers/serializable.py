@@ -1,5 +1,6 @@
 import types
 import json
+from loguru import logger
 from helpers.file_lock import FileLock
 
 
@@ -38,7 +39,7 @@ def _serialize(name: str, value, full_path: str = ''):
     elif isinstance(value, Serializable):
         serialized = value.serialize(full_path)
         value_type = type(value)
-        return (f'{name}@{value_type.__module__}.{value_type.__name__}', serialized)
+        return (f'{name}\n{value_type.__module__}.{value_type.__name__}', serialized)
 
     # unknown type, nothing we can do...
     else:
@@ -87,7 +88,7 @@ def _deserialize(name, value):
     Name may hold encoded data type (class) of the value. In such case, the corresponding class is constructed.
     (name, value) pair is returned (since name may have been stripped of the piggybacked type).
     '''
-    name_tokens = name.split('@')
+    name_tokens = name.split('\n')
     name = name_tokens.pop(0)
     class_name = name_tokens.pop(0) if len(name_tokens) > 0 else None
 
@@ -194,6 +195,8 @@ class Serializable:
     def serialization_file_exists(self) -> bool:
         if self._serialization_file is None:
             raise RuntimeError("No serialization file was specified.")
+        logger.trace(f'Serialize.serialization_file_exists({self._serialization_file.get_file_name()
+                                                            }) -> {self._serialization_file.exists()}')
         return self._serialization_file.exists()
 
     def load_json(self, file: str | None = None, keep_open=False, exclusive=False) -> None:
@@ -209,6 +212,8 @@ class Serializable:
                 raise Exception("Path to a serialization file must be specified.")
             self.open_serialization_file(exclusive=exclusive)
 
+        logger.trace(f'Serialize.load_json({self._serialization_file.get_file_name()
+                                            }, keep_open={keep_open}, exclusive={exclusive})')
         self._serialization_file.get_fp().seek(0)
         data = json.load(self._serialization_file.get_fp())
         self.deserialize(data)
@@ -228,6 +233,7 @@ class Serializable:
                 raise Exception("Path to a serialization file must be specified.")
             self.open_serialization_file(exclusive=True)
 
+        logger.trace(f'Serialize.save_json({self._serialization_file.get_file_name()}, keep_open={keep_open})')
         data = self.serialize()
         self._serialization_file.get_fp().seek(0)
         self._serialization_file.get_fp().truncate(0)  # lets make sure the entire file overwritten

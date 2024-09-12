@@ -1,0 +1,19 @@
+general: 
+  config_files: 'assignments/*.yaml'
+
+workspace:  # directory structure
+  tmp_dir: 'temp'
+
+logger:
+  - sink: '@stdout'
+    level: TRACE
+    colorize: true
+    format: '[{time}] <lvl>{level}</lvl>: {message} ({file}:{line})'
+
+users:
+  file: .usr-db.json
+
+#slurm:  # defaults for SLURM execution
+#  account: 'teachers'
+
+# assignments: []

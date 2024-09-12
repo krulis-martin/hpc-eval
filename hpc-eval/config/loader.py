@@ -31,7 +31,8 @@ class ConfigLoader:
             'lock_timeout': cd.Integer(10, "Default timeout [s] for all file locking operations.")
         }, description='Global configuration')
 
-    def load(self, root_file):
+    def load(self, root_file: str) -> dict:
+        root_file = os.path.abspath(root_file)
         root_cfg = _load_yaml(root_file)
         config = self.schema.load(root_cfg, root_file)
 

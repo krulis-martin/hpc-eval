@@ -1,6 +1,7 @@
 from typing import Self, override
 import os
 import glob
+from loguru import logger
 
 
 def _normalize_path(path, base_file, _):
@@ -8,6 +9,7 @@ def _normalize_path(path, base_file, _):
     If the path is relative, convert it to absolute using `base_file` path as reference.
     This function has conveniently the same order of arguments as expected for descriptor postprocessors.
     '''
+    logger.trace(f'_normalize_path({path}, {base_file})')
     if os.path.isabs(path):
         return path
     base = os.path.dirname(base_file)

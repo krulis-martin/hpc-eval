@@ -1,4 +1,5 @@
 import os
+from loguru import logger
 import config.descriptors as cd
 
 
@@ -23,6 +24,8 @@ class Workspace:
         return __class__._config
 
     def __init__(self, config: dict = {}):
+        logger.trace(f'Workspace.__init__({config})')
+
         self.root = os.path.abspath(config.get('root', os.getcwd()))
         if not os.path.isdir(self.root):
             raise Exception(f"Path {self.root} is not an existing directory.")
