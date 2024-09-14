@@ -49,7 +49,12 @@ class FileLock:
         if timeout is None:
             timeout = __class__.default_timeout
 
-        mode = 'r' if self.exists() else 'w'  # w will ensure creation
+        mode = 'r'
+        if not self.exists():
+            mode = 'w'  # w will ensure creation
+            dir = os.path.dirname(os.path.abspath(self.file_name))
+            os.makedirs(dir, mode=0o770, exist_ok=True)
+
         if exclusive:
             mode += '+'  # r+ is for reading and writing but without truncation
 
