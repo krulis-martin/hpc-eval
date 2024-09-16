@@ -17,8 +17,8 @@ class BaseCommand:
         # (keys are used both as config keys and as propery names within this class)
 
         self.logger = LogInit()  # initializes loguru logger on construction
-        self.workspace = Workspace(),
-        self.users = Users(),
+        self.workspace = Workspace()
+        self.users = Users()
         self.args = None  # not loaded yet
 
     def _prepare_args_parser(self) -> argparse.ArgumentParser:

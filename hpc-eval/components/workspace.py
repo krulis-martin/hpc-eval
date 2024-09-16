@@ -28,8 +28,8 @@ class Workspace:
         logger.trace(f'Workspace.__init__({config})')
 
         root = os.path.abspath(config.get('root', os.getcwd()))
-        if not os.path.isdir(self.root):
-            raise Exception(f"Path {self.root} is not an existing directory.")
+        if not os.path.isdir(root):
+            raise Exception(f"Path {root} is not an existing directory.")
 
         # lets make sure itelisense remembers properties (and so we can iterate them)
         self.solutions_dir = None
@@ -39,7 +39,7 @@ class Workspace:
 
         for dir in self.__dict__:  # lets fill previously declared properties from config
             default = __class__._config.items[dir].default
-            self.__dict__[dir] = os.path.abspath(self.root + '/_' + config.get(dir, default))
+            self.__dict__[dir] = os.path.abspath(root + '/_' + config.get(dir, default))
 
         self.root = root
 

@@ -25,12 +25,19 @@ class ConfigLoader:
 
     def __init__(self, schema: cd.Dictionary):
         assert 'general' not in schema.items, "Component config must not contain reserved key 'general'"
+        # patch the schema by injecting general subseciton without altering the original object
         self.schema = copy.copy(schema)
         self.schema.items = copy.copy(self.schema.items)
+        self.schema.default = copy.copy(self.schema.default)
         self.schema.items['general'] = cd.Dictionary({
             'config_files': cd.String().glob(),
             'lock_timeout': cd.Integer(10, "Default timeout [s] for all file locking operations.")
         }, description='Global configuration')
+        self.schema.items['general'].embed('general', self.schema)
+        self.schema.default['general'] = {
+            'config_files': [],
+            'lock_timeout': 10,
+        }
 
     def load(self, root_file: str) -> dict:
         root_file = os.path.abspath(root_file)
