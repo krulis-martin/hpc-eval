@@ -27,6 +27,10 @@ class Solution(Serializable):
         self.dir = None
 
     def get_dir(self) -> str:
+        '''
+        Return a directory name used to store solution data in the assignment-user designated box.
+        The dirname comprise submission time and solution ID(s).
+        '''
         if self.dir is None:
             assert self.id, "The solution does not have an ID yet!"
             ext = ('-' + self.external_id) if self.external_id else ''
@@ -37,6 +41,9 @@ class Solution(Serializable):
 
 
 class Solutions(Serializable):
+    '''
+    Container for solutions. Manages serialization, lookups, ...
+    '''
     _config = cd.Dictionary({
         'file': cd.String('_solutions/solutions.json', 'Path to the JSON file where solution records are stored.'
                           ).path(),
@@ -48,10 +55,6 @@ class Solutions(Serializable):
         Return configuration descriptor for this component.
         '''
         return __class__._config
-
-    '''
-    Container for solutions. Manages serialization, lookups, ...
-    '''
 
     def __init__(self, config: dict = {}):
         logger.trace(f'Solutions.__init__({config})')
@@ -118,11 +121,11 @@ class Solutions(Serializable):
         Solutions are removed only when something bad happens.
         Returns the solution object being removed or None if no such solution exists.
         '''
-        if id not in self.solution:
+        if id not in self.solutions:
             return None
 
-        solution = self.solution[id]
+        solution = self.solutions[id]
         if solution.external_id:
             del self._ext_index[solution.external_id]
-        del self.solution[id]
+        del self.solutions[id]
         return solution

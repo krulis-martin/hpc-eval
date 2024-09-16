@@ -60,9 +60,6 @@ class TestUsers(unittest.TestCase):
         self.assertEqual(len(users2), 3)
         self.assertEqual(users[id], users2[id])
 
-        if __name__ == '__main__':
-            unittest.main()
-
     def test_update(self):
         self.create_users(3)
         new_data = {'external_id': 'foo', 'first_name': 'Jane', 'last_name': 'Smith'}
