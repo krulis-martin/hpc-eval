@@ -14,9 +14,16 @@ class User(Serializable):
         Empty ID is allowed to support deserialization and when new user is being added
         (ID is then assigned by seq. generator). Other data should be passed as named args.
         '''
-        self.id = id.strip() if id else None
-        for k in ['external_id', 'first_name', 'last_name', 'email']:
+        self.external_id = None
+        self.first_name = None
+        self.last_name = None
+        self.email = None
+
+        # autoloading from named arguments
+        for k in self.__dict__:
             self.__dict__[k] = kwargs.get(k)
+
+        self.id = id.strip() if id else None
 
     def __eq__(self, other):
         if not isinstance(other, User):

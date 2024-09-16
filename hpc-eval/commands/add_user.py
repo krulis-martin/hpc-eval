@@ -17,9 +17,9 @@ class AddUser(BaseCommand):
     def _prepare_args_parser(self) -> argparse.ArgumentParser:
         parser = super()._prepare_args_parser()
         parser.add_argument('--id', type=str, help='Identification of the user. If missing, ID is generated.')
-        parser.add_argument('--external_id', type=str, help='Optional external (another) identification of the user.')
-        parser.add_argument('--first_name', type=str, required=True)
-        parser.add_argument('--last_name', type=str, required=True)
+        parser.add_argument('--external-id', type=str, help='Optional external (another) identification of the user.')
+        parser.add_argument('--first-name', type=str, required=True)
+        parser.add_argument('--last-name', type=str, required=True)
         parser.add_argument('--email', type=str, required=True)
         parser.add_argument('--update', default=False, action="store_true",
                             help='Allows updates (if a user record with the same ID exists).')
