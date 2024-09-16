@@ -1,6 +1,8 @@
 import unittest
 import tempfile
 from components.users import Users, User
+from commands.add_user import AddUser
+from tests.command_tests import CommandTestsBase
 
 
 class TestUsers(unittest.TestCase):
@@ -92,6 +94,27 @@ class TestUsers(unittest.TestCase):
         self.assertIsNotNone(users2['1'])
         self.assertIsNone(users2['2'])
         self.assertIsNotNone(users2['3'])
+
+
+class TestAddUser(CommandTestsBase):
+    def test_add_user(self):
+        command = AddUser()
+        self.run_command(command, [
+            '--external-id', 'eid',
+            '--first-name', 'Jane',
+            '--last-name', 'Doe',
+            '--email', 'jane.doe@email.domain'
+        ])
+
+        users = Users({'file': f'{self.rootdir}/_users.json'})
+        self.assertTrue(users.serialization_file_exists())
+        users.load_json()
+        self.assertEqual(len(users), 1)
+        user = users.get_by_external_id('eid')
+        self.assertIsNotNone(user)
+        self.assertEqual(user.first_name, 'Jane')
+        self.assertEqual(user.last_name, 'Doe')
+        self.assertEqual(user.email, 'jane.doe@email.domain')
 
 
 if __name__ == '__main__':
