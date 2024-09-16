@@ -18,7 +18,7 @@ class Submit(BaseCommand):
 
     def __init__(self):
         super().__init__()
-        self.components['solutions'] = Solutions
+        self.solutions = Solutions()
 
     @override
     def _prepare_args_parser(self) -> argparse.ArgumentParser:

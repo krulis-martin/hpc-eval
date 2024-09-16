@@ -20,7 +20,8 @@ class ConfigLoader:
         '''
         Return True if given class is configurable (duck typing detection).
         '''
-        return hasattr(cls, 'get_config_schema') and isinstance(cls.__dict__.get('get_config_schema'), staticmethod)
+        return cls and hasattr(cls, 'get_config_schema') and isinstance(cls.__dict__.get('get_config_schema'),
+                                                                        staticmethod)
 
     def __init__(self, schema: cd.Dictionary):
         assert 'general' not in schema.items, "Component config must not contain reserved key 'general'"

@@ -15,11 +15,10 @@ class BaseCommand:
     def __init__(self):
         # known components automatically instantiated with config load
         # (keys are used both as config keys and as propery names within this class)
-        self.components = {
-            'logger': LogInit,  # initializes loguru logger on construction
-            'workspace': Workspace,
-            'users': Users,
-        }
+
+        self.logger = LogInit()  # initializes loguru logger on construction
+        self.workspace = Workspace(),
+        self.users = Users(),
         self.args = None  # not loaded yet
 
     def _prepare_args_parser(self) -> argparse.ArgumentParser:
@@ -56,19 +55,17 @@ class BaseCommand:
         Load configuration and instantiate base components (listed in `component` dict).
         '''
         assert self.args is not None, "Arguments need to be loaded first!"
-        schema = cd.Dictionary({key: comp_class.get_config_schema() for key, comp_class in self.components.items()
-                                if ConfigLoader.is_configurable(comp_class)})
+        schema = cd.Dictionary({key: val.__class__.get_config_schema() for key, val in self.__dict__.items()
+                                if ConfigLoader.is_configurable(val.__class__)})
         loader = ConfigLoader(schema)
 
         # load entire configuration structure, terminates on failure
         config = loader.load(self.args.config)
 
         # use config to instantiate components
-        for key, comp_class in self.components.items():
-            if ConfigLoader.is_configurable(comp_class):
-                self.__dict__[key] = comp_class(config=config[key])  # passing config parts to constructor
-            else:
-                self.__dict__[key] = comp_class()  # no config
+        for key, val in self.__dict__.items():
+            if ConfigLoader.is_configurable(val.__class__):
+                self.__dict__[key] = val.__class__(config=config[key])  # replace blank instane with a configured one
 
     def load_state(self) -> None:
         '''
