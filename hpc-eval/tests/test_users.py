@@ -116,6 +116,68 @@ class TestAddUser(CommandTestsBase):
         self.assertEqual(user.last_name, 'Doe')
         self.assertEqual(user.email, 'jane.doe@email.domain')
 
+    def test_update_user_by_id(self):
+        self.add_dummy_users(3)
+        command = AddUser()
+        self.run_command(command, [
+            '--update',
+            '--id', '2',
+            '--first-name', 'Jane',
+            '--last-name', 'Doe',
+            '--email', 'jane.doe@email.domain'
+        ])
+
+        users = Users({'file': f'{self.rootdir}/_users.json'})
+        self.assertTrue(users.serialization_file_exists())
+        users.load_json()
+        self.assertEqual(len(users), 3)
+        user = users['2']
+        self.assertIsNotNone(user)
+        self.assertEqual(user.first_name, 'Jane')
+        self.assertEqual(user.last_name, 'Doe')
+        self.assertEqual(user.email, 'jane.doe@email.domain')
+
+    def test_update_user_by_external_id(self):
+        self.add_dummy_users(3)
+        command = AddUser()
+        self.run_command(command, [
+            '--update',
+            '--external-id', 'ext1',
+            '--first-name', 'Jane',
+            '--last-name', 'Doe',
+            '--email', 'jane.doe@email.domain'
+        ])
+
+        users = Users({'file': f'{self.rootdir}/_users.json'})
+        self.assertTrue(users.serialization_file_exists())
+        users.load_json()
+        self.assertEqual(len(users), 3)
+        user = users.get_by_external_id('ext1')
+        self.assertIsNotNone(user)
+        self.assertEqual(user.first_name, 'Jane')
+        self.assertEqual(user.last_name, 'Doe')
+        self.assertEqual(user.email, 'jane.doe@email.domain')
+
+    def test_no_update(self):
+        self.add_dummy_users(3)
+        command = AddUser()
+        self.run_command(command, [
+            '--external-id', 'ext1',
+            '--first-name', 'Jane',
+            '--last-name', 'Doe',
+            '--email', 'jane.doe@email.domain'
+        ])
+
+        users = Users({'file': f'{self.rootdir}/_users.json'})
+        self.assertTrue(users.serialization_file_exists())
+        users.load_json()
+        self.assertEqual(len(users), 3)
+        user = users.get_by_external_id('ext1')
+        self.assertIsNotNone(user)
+        self.assertNotEqual(user.first_name, 'Jane')
+        self.assertNotEqual(user.last_name, 'Doe')
+        self.assertNotEqual(user.email, 'jane.doe@email.domain')
+
 
 if __name__ == '__main__':
     unittest.main()
