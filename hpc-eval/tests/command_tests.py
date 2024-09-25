@@ -8,21 +8,28 @@ from components.users import Users, User
 
 class CommandTestsBase(unittest.TestCase):
     def setUp(self) -> None:
-        self.tempdir = tempfile.TemporaryDirectory()
-        self.rootdir = self.tempdir.name
+        super().setUp()
+        tempdir = tempfile.TemporaryDirectory()
+        self.tempdirs = [tempdir]
+        self.rootdir = tempdir.name
         self.config_file = self.rootdir + '/config.yaml'
         with open(self.config_file, 'w') as fp:
             yaml = YAML()
             yaml.dump({
+                'workspace': {
+                    'root': self.rootdir,
+                },
                 'logger': [{
                     'sink': '/dev/null',
                     'level': 'ERROR',
                 }]
             }, fp)
+
         os.chdir(self.rootdir)
 
     def tearDown(self) -> None:
-        self.tempdir.cleanup()
+        for tempdir in self.tempdirs:
+            tempdir.cleanup()
         return super().tearDown()
 
     def add_user(self, id: str | None, external_id: str | None, first_name: str, last_name: str, email: str) -> None:
@@ -68,3 +75,28 @@ class CommandTestsBase(unittest.TestCase):
         command.load_state()
         command.execute()
         command.save_state()
+
+    def create_temp_dir(self, files: dict = {}) -> str:
+        '''
+        Prepare a temporary directory with given files. Files dict arg holds file names => content.
+        Path to the directory is returned, cleanup is done automatically in tearDown().
+        '''
+        tempdir = tempfile.TemporaryDirectory()
+        self.tempdirs.append(tempdir)  # for cleanup later
+        tempdir = tempdir.name
+
+        for file, content in files.items():
+            dir = os.path.dirname(file)
+            if dir:
+                os.makedirs(f'{tempdir}/{dir}', mode=0o700, exist_ok=True)
+            with open(f'{tempdir}/{file}', 'w') as fp:
+                fp.write(content)
+
+        return tempdir
+
+    def get_file_contents(self, file: str) -> str:
+        '''
+        Helper that loads the entire (text) file as a string.
+        '''
+        with open(file, 'r') as fp:
+            return fp.read()

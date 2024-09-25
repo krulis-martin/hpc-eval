@@ -93,3 +93,7 @@ class TestConfig(unittest.TestCase):
         data2 = Data1(file)
         data2.load_json()
         self.assertEqual(data, data2)
+
+
+if __name__ == '__main__':
+    unittest.main()

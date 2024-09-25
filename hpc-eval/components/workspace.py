@@ -72,7 +72,7 @@ class Workspace:
             tmp_dir}' is not located in the local temp area."
 
         base = f'{self.solutions_dir}/{solution.assignment_id}/{solution.user_id}'
-        os.makedirs(base, mode=__class__._dir_mode, exit_ok=True)
+        os.makedirs(base, mode=__class__._dir_mode, exist_ok=True)
 
         # we intentionally do not use shutil.move() to ensure the move will work only on the same fs
         # (this operation should be atomic according to POSIX)

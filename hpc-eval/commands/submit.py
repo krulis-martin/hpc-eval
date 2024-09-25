@@ -6,6 +6,7 @@ from typing import override
 from loguru import logger
 from commands.base import BaseCommand
 from components.solutions import Solution, Solutions
+from components.assignments import Assignment
 
 
 class Submit(BaseCommand):
@@ -118,7 +119,7 @@ class Submit(BaseCommand):
             logger.error(f"User '{self.args.user or self.args.user_ext}' not found.")
             return
 
-        assignment = self.args.assignment  # TODO assignment ID validation
+        assignment = Assignment(self.args.assignment)  # TODO assignment ID validation
         # if assignment is not specified and there is exactly one defined, use it
 
         solution = self._create_solution(user, assignment)

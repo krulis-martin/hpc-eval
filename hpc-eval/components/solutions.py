@@ -34,7 +34,7 @@ class Solution(Serializable):
         if self.dir is None:
             assert self.id, "The solution does not have an ID yet!"
             ext = ('-' + self.external_id) if self.external_id else ''
-            dt = datetime.utcfromtimestamp(self.submitted_at)
+            dt = datetime.datetime.fromtimestamp(self.submitted_at)
             self.dir = f"{dt.strftime('%Y%m%d-%H%M%S')}-{self.id}{ext}"
 
         return self.dir
