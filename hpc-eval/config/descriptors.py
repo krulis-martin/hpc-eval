@@ -132,6 +132,7 @@ class Base:
         '''
         Load, sanitize, and possibly merge the value.
         `value` - raw value to be loaded
+        `source` - path to file (yaml, json, ...) from which the structure is being loaded
         `merge_with` - previously loaded value used when two structures are being merged
         Returns sanitized value (possibly previous from merge_with or default).
         '''
@@ -337,5 +338,48 @@ class List(Base):
         for idx, val in enumerate(value):
             self.sub_type.name = idx  # bit of a hack actually, we need to smuggle index into descriptor somehow
             res.append(self.sub_type.load(val, source))
+
+        return res
+
+
+class NamedList(Base):
+    '''
+    Descriptor representing a dictionary which works as an associative array
+    (names matters all values have the same type).
+    '''
+
+    def __init__(self, sub_type: Base, default: dict = {}, description: str | None = None):
+        '''
+        Descriptor for a named-list (dict) of items of the same sub_type.
+        `sub_type` is descriptor of the items in the list.
+        '''
+        super().__init__(default=default, description=description)
+        self.sub_type = sub_type
+        self.sub_type.embed(None, self)  # -1 indicate no valid index
+
+    @override
+    def validate(self, value, source, errors: list) -> bool:
+        value = self._preprocess(value, source)
+        if type(value) is not dict:
+            errors.append(ValidationError(self, source, f"Value '{value}' is not a dictionary."))
+            return False
+
+        ok = True
+        for name, val in value.items():
+            self.sub_type.name = name  # bit of a hack actually, we need to smuggle the name into descriptor somehow
+            if not self.sub_type.validate(val, source, errors):
+                ok = False
+        self.sub_type.name = None  # reset to normal
+        return ok
+
+    @override
+    def load(self, value: dict | None, source, merge_with: dict | None = {}):
+        if not value:
+            return merge_with if merge_with else self.default.copy()
+
+        res = merge_with.copy()
+        for name, val in value.items():
+            self.sub_type.name = name  # bit of a hack actually, we need to smuggle the name into descriptor somehow
+            res[name] = self.sub_type.load(val, source)
 
         return res

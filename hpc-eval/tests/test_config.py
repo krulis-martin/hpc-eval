@@ -153,6 +153,32 @@ class TestConfig(unittest.TestCase):
         res = descs.load('./../jobs', '/opt/hpc-eval/config.yaml')
         self.assertEqual(res, os.path.normpath('/opt/jobs'))
 
+    def test_named_list_ok(self):
+        descs = cd.NamedList(cd.Integer())
+        input = {
+            "foo": 1,
+            "bar": 2,
+            "spam": 42,
+        }
+        errors = []
+        self.assertTrue(descs.validate(input, '', errors))
+        self.assertEqual(len(errors), 0)
+        loaded = descs.load(input, '')
+        self.assertDictEqual(loaded, input)
+
+    def test_named_list_fail(self):
+        descs = cd.NamedList(cd.Integer())
+        input = {
+            "foo": 1,
+            "bar": 2,
+            "spam": 'str',
+        }
+        errors = []
+        self.assertFalse(descs.validate(input, 'file.yaml', errors))
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0].full_name, 'spam')
+        self.assertEqual(str(errors[0]), "'spam' (in 'file.yaml'): Integer value expected, str given.")
+
 
 class TestConfigWithFs(unittest_fs.TestCase):
     def setUp(self):
