@@ -309,15 +309,31 @@ class List(Base):
         self.sub_type = sub_type
         self.sub_type.embed(-1, self)  # -1 indicate no valid index
         self.append = False
+        self.is_collapsible = False
 
     def set_append(self, append: bool = True) -> Self:
         self.append = append
+        return self
+
+    def collapsible(self, collapsible: bool = True) -> Self:
+        '''
+        If the list is collapsible, it allows replacing itself with its sub type in the config,
+        and creating a list with single sub-item in the load.
+        Note: this works only if the sub-type is not a list.
+        '''
+        self.is_collapsible = collapsible
         return self
 
     @override
     def validate(self, value, source, errors: list) -> bool:
         value = self._preprocess(value, source)
         if type(value) is not list:
+            if self.is_collapsible:  # it is possible this is collapsed single value (shorthand)
+                self.sub_type.name = 0
+                ok = self.sub_type.validate(value, source, errors)
+                self.sub_type.name = -1  # reset to normal
+                return ok
+
             errors.append(ValidationError(self, source, f"Value '{value}' is not a list."))
             return False
 
@@ -330,7 +346,10 @@ class List(Base):
         return ok
 
     @override
-    def load(self, value: list | None, source, merge_with: list | None = {}):
+    def load(self, value, source, merge_with: list | None = []):
+        if type(value) is not list and value is not None and self.is_collapsible:
+            value = [value]
+
         if not value:
             return merge_with if merge_with else self.default.copy()
 

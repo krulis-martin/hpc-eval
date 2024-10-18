@@ -153,6 +153,18 @@ class TestConfig(unittest.TestCase):
         res = descs.load('./../jobs', '/opt/hpc-eval/config.yaml')
         self.assertEqual(res, os.path.normpath('/opt/jobs'))
 
+    def test_collapsible_list_ok(self):
+        descs = cd.Dictionary({"foo": cd.List(cd.Integer()).collapsible()})
+        errors = []
+        self.assertTrue(descs.validate({"foo": []}, '', errors))
+        self.assertTrue(descs.validate({"foo": [1, 2, 3]}, '', errors))
+        self.assertTrue(descs.validate({"foo": 42}, '', errors))
+        self.assertEqual(len(errors), 0)
+        loaded = descs.load({"foo": [1, 2, 3]}, '')
+        self.assertEqual(loaded["foo"], [1, 2, 3])
+        loaded = descs.load({"foo": 42}, '')
+        self.assertEqual(loaded["foo"], [42])
+
     def test_named_list_ok(self):
         descs = cd.NamedList(cd.Integer())
         input = {
