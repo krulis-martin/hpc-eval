@@ -13,12 +13,14 @@ class SlurmArgs:
         'nodelist': str,
         'ntasks': int,
         'output': str,
+        'error': str,
         'partition': str,
         'time': str,
     }
     short_args = {
         'A': 'account',
         'c': 'cpus-per-task',
+        'e': 'error',
         'G': 'gpus',
         'n': 'ntasks',
         'w': 'nodelist',
@@ -32,6 +34,7 @@ class SlurmArgs:
         Optionally, the constructor receives default args, which may be
         an instance of SlurmArgs or a dict { name: value }.
         '''
+        self.args = {}
         if defaults and isinstance(defaults, SlurmArgs):
             self.args = defaults.args.copy()
         elif defaults:
@@ -40,8 +43,6 @@ class SlurmArgs:
                     "Defaults must be SlurmArgs instance or a dictionary.")
             for name, value in defaults.items():
                 self.add_arg(name, value)
-        else:
-            self.args = {}
 
     def has_arg(self, name: str) -> bool:
         '''
