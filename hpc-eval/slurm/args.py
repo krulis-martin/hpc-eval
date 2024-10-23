@@ -1,7 +1,8 @@
 from typing import Self
+from helpers.serializable import Serializable
 
 
-class SlurmArgs:
+class SlurmArgs(Serializable):
     # the sbatch subset of known args will be extended as needed
     known_args = {
         'account': str,

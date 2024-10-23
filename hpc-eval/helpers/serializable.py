@@ -116,7 +116,7 @@ class Serializable:
     Remaining methods (except for constructor) should not be overriden.
     '''
 
-    def __init__(self, file: str | None = None, lock_timeout: int = 10):
+    def __init__(self, file: str | None = None, lock_timeout: int | None = None):
         '''
         The file holds the path to the serialization file used for load/save operations.
         The lock timeout is used for locking operations of the serialization file.

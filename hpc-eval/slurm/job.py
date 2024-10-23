@@ -1,17 +1,19 @@
 from slurm.args import SlurmArgs
 import slurm.api as api
+from helpers.serializable import Serializable
 
 from typing import Self
 import time
 
 
-class SlurmJob:
+class SlurmJob(Serializable):
     '''
     Wraps a job executed by the SLURM sbatch utility.
     It enables polling the state via sacct utility.
     '''
 
-    def __init__(self, name: str, args: SlurmArgs | None = None):
+    def __init__(self, name: str | None = None, args: SlurmArgs | None = None):
+        super().__init__()
         self.name = name
         self.args = SlurmArgs(args)
         self.commands = []
@@ -36,9 +38,10 @@ class SlurmJob:
         if result is not None:
             # copy the resutl to internal properties
             for key in ['state', 'running', 'exit_code', 'signal']:
-                self.key = result.get(key)
-        elif self.state is None or self.state == '_STARTING_':
+                self.__dict__[key] = result.get(key)
+        elif self.state is None:
             self.state = '_STARTING_'
+
         self.last_update = ts
 
     def _update_state(self, state_timeout: int | None = 5) -> bool:

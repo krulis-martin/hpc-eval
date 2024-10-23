@@ -1,17 +1,18 @@
 from slurm.job import SlurmJob
 from slurm.args import SlurmArgs
 import slurm.api as api
-
+from helpers.serializable import Serializable
 import time
 
 
-class Slurm:
+class Slurm(Serializable):
     '''
     Main interface for the Slurm job dispatching. Creates and manages
     SlurmJob objects through which the execution is controlled.
     '''
 
     def __init__(self, default_args: SlurmArgs | dict | None = None):
+        super().__init__()
         self.jobs = {}
         self.default_args = SlurmArgs(default_args)
 
