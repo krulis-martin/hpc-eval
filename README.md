@@ -1,4 +1,7 @@
-# This project is currently under construction. Not ready to be used yet!
+# This project is currently still in development!
+
+We are testing the project internally and finishing some loose ends. Once we are done, the project will be released for public usage.
+
 
 # HPC Eval
 
